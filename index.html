@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory Echo Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .game-container {
+            width: 300px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            width: 140px;
+            height: 140px;
+            border-radius: 15px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .btn:active {
+            opacity: 1;
+            transform: scale(0.95);
+        }
+
+        .green { background: green; }
+        .red { background: red; }
+        .yellow { background: yellow; }
+        .blue { background: blue; }
+
+        .flash {
+            opacity: 1 !important;
+            box-shadow: 0 0 20px white;
+        }
+
+        #startBtn {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #level {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🧠 Memory Echo Game</h1>
+<button id="startBtn">Start Game</button>
+<p id="level">Level: 0</p>
+
+<div class="game-container">
+    <div class="btn green" id="green"></div>
+    <div class="btn red" id="red"></div>
+    <div class="btn yellow" id="yellow"></div>
+    <div class="btn blue" id="blue"></div>
+</div>
+
+<script>
+    const colors = ["green", "red", "yellow", "blue"];
+    let gamePattern = [];
+    let userPattern = [];
+    let level = 0;
+    let started = false;
+
+    const levelText = document.getElementById("level");
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.addEventListener("click", () => {
+        if (!started) {
+            startGame();
+        }
+    });
+
+    function startGame() {
+        level = 0;
+        gamePattern = [];
+        started = true;
+        nextSequence();
+    }
+
+    function nextSequence() {
+        userPattern = [];
+        level++;
+        levelText.textContent = "Level: " + level;
+
+        const randomColor = colors[Math.floor(Math.random() * 4)];
+        gamePattern.push(randomColor);
+
+        playSequence();
+    }
+
+    function playSequence() {
+        let i = 0;
+        const interval = setInterval(() => {
+            flashButton(gamePattern[i]);
+            i++;
+            if (i >= gamePattern.length) {
+                clearInterval(interval);
+            }
+        }, 700);
+    }
+
+    function flashButton(color) {
+        const button = document.getElementById(color);
+        button.classList.add("flash");
+        setTimeout(() => {
+            button.classList.remove("flash");
+        }, 300);
+    }
+
+    document.querySelectorAll(".btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (!started) return;
+
+            const userColor = btn.id;
+            userPattern.push(userColor);
+            flashButton(userColor);
+            checkAnswer(userPattern.length - 1);
+        });
+    });
+
+    function checkAnswer(index) {
+        if (userPattern[index] === gamePattern[index]) {
+            if (userPattern.length === gamePattern.length) {
+                setTimeout(nextSequence, 1000);
+            }
+        } else {
+            gameOver();
+        }
+    }
+
+    function gameOver() {
+        levelText.textContent = "❌ Game Over! Click Start";
+        started = false;
+    }
+</script>
+
+</body>
+</html>
